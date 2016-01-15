@@ -3,18 +3,29 @@ package main
 import "fmt"
 import "time"
 
+func worker(id int, jobs <-chan int, results chan<- int) {
+	for j := range jobs {
+		fmt.Println("worker", id, "processing joba", j)
+		time.Sleep(time.Second)
+		results <- j*2
+	}
+}
+
 func main() {
-	ticker := time.NewTimer(time.Millisecond * 100)
-	go func(){
-		for t := range ticker.C{
-			fmt.Println("Tick at", t)
-		}
-	} ()
+	jobs := make(chan int, 100)
+	results := make(chan int, 100)
 
+	for w := 1; w <= 3; w++ {
+		worker(w, jobs, results)
+	}
 
-	time.Sleep(time.Millisecond * 500)
+	for j := 1; j <= 9; j++ {
+		jobs <- j
+	}
+	close(jobs)
 
-	ticker.Stop()
-	fmt.Println("Ticker stopped")
+	for a := 1; a <= 9; a++ {
+		<-results
+	}
 
 }
