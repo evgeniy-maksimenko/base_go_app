@@ -1,32 +1,32 @@
 package main
 
 import "fmt"
-import "time"
 
 func main() {
-	c1 := make(chan string, 1)
-	go func() {
-		time.Sleep(time.Second * 2)
-		c1 <- "result 1"
-	}()
+	messages := make(chan string)
+	signals := make(chan bool)
 
 	select {
-	case res:= <-c1:
-		fmt.Println(res)
-	case <-time.After(time.Second * 1):
-		fmt.Println("timeot 1")
+	case msg := <-messages:
+		fmt.Println("received message", msg)
+	default:
+		fmt.Println("no message received")
 	}
 
-	c2 := make(chan string, 1)
-	go func() {
-		time.Sleep(time.Second * 2)
-		c2 <- "result 2"
-	}()
+	msg := "hi"
+	select {
+	case messages <- msg:
+		fmt.Println("sent message", msg)
+	default:
+		fmt.Println("no message sent")
+	}
 
 	select {
-	case res := <-c2:
-		fmt.Println(res)
-	case <-time.After(time.Second * 3):
-		fmt.Println("timeout 2")
+	case msg := <-messages:
+		fmt.Println("reveived message", msg)
+	case sig := <-signals:
+		fmt.Println("receoved signal", sig)
+	default:
+		fmt.Println("no activity")
 	}
 }
