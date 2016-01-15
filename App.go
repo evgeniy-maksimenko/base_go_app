@@ -3,30 +3,27 @@ package main
 import "fmt"
 
 func main() {
-	messages := make(chan string)
-	signals := make(chan bool)
+	jobs := make(chan int, 5)
+	done := make(chan bool)
 
-	select {
-	case msg := <-messages:
-		fmt.Println("received message", msg)
-	default:
-		fmt.Println("no message received")
-	}
+	go func() {
+		for {
+			j, more := <-jobs
+			if more {
+				fmt.Println("received job", j)
+			} else {
+				fmt.Println("received all jobs")
+				done <- true
+				return
+			}
+		}
+	}()
 
-	msg := "hi"
-	select {
-	case messages <- msg:
-		fmt.Println("sent message", msg)
-	default:
-		fmt.Println("no message sent")
+	for j := 1; j <= 3; j++ {
+		jobs <- j
+		fmt.Println("send job", j)
 	}
-
-	select {
-	case msg := <-messages:
-		fmt.Println("reveived message", msg)
-	case sig := <-signals:
-		fmt.Println("receoved signal", sig)
-	default:
-		fmt.Println("no activity")
-	}
+	close(jobs)
+	fmt.Println("sent all jobs")
+	<-done
 }
