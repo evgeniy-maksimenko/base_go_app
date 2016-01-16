@@ -1,54 +1,30 @@
 package main
 
-import (
-	"sync/atomic"
-	"runtime"
-	"fmt"
-	"time"
-	"sync"
-	"math/rand"
-)
+import "fmt"
+import "os"
 
 func main() {
 
-	var state = make(map[int]int)
-	var mutex =  &sync.Mutex{}
-	var ops int64 = 0
+	f := createFile("defer.txt")
+	defer closeFile(f)
+	writeFile(f)
+}
 
-	for r := 0; r < 100; r++ {
-		go func() {
-			total := 0
-			for {
-				key := rand.Intn(5)
-				mutex.Lock()
-				total += state[key]
-				mutex.Unlock()
-				atomic.AddInt64(&ops, 1)
-
-				runtime.Gosched()
-			}
-		}()
+func createFile(p string) *os.File {
+	fmt.Println("creating")
+	f, err := os.Create(p)
+	if err != nil {
+		panic(err)
 	}
+	return f
+}
 
-	for w := 0; w < 10; w++ {
-		go func() {
-			key := rand.Intn(5)
-			val := rand.Intn(100)
-			mutex.Lock()
-			state[key] = val
-			mutex.Unlock()
-			atomic.AddInt64(&ops, 1)
+func writeFile(f *os.File) {
+	fmt.Println("writing")
+	fmt.Println(f, "data")
+}
 
-			runtime.Gosched()
-		}()
-	}
-
-	time.Sleep(time.Second)
-
-	opsFinal := atomic.LoadInt64(&ops)
-	fmt.Println("ops:", opsFinal)
-
-	mutex.Lock()
-	fmt.Println("state:", state)
-	mutex.Unlock()
+func closeFile(f *os.File) {
+	fmt.Println("closing")
+	f.Close()
 }
