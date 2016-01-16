@@ -1,45 +1,25 @@
 package main
 
 import (
+	"sync/atomic"
+	"runtime"
 	"fmt"
 	"time"
 )
 
 func main() {
-	requests := make(chan int, 5)
-	for i := 1; i <= 5; i++ {
-		requests <- i
-	}
-	close(requests)
 
-	limiter := time.Tick(time.Millisecond * 200)
+	var ops uint64 = 0
 
-	for req := range requests {
-		<- limiter
-		fmt.Println("requst", req, time.Now())
+	for i := 0; i< 50; i++ {
+		go func() {
+			atomic.AddUint64(&ops, 1)
+			runtime.Gosched()
+		}()
 	}
 
-	burstyLimiter := make(chan time.Time, 3)
+	time.Sleep(time.Second)
 
-	for i := 0; i < 3; i++ {
-		burstyLimiter <- time.Now()
-	}
-
-	go func() {
-		for t := range time.Tick(time.Millisecond * 200) {
-			burstyLimiter <- t
-		}
-	}()
-
-
-	burstyRequests := make(chan int, 5)
-	for i := 1; i <= 5; i++ {
-		burstyRequests <- i
-	}
-	close(burstyRequests)
-
-	for req := range burstyRequests {
-		<-burstyRequests
-		fmt.Println("request", req, time.Now())
-	}
+	opsFinal := atomic.LoadUint64(&ops)
+	fmt.Println("ops:", opsFinal)
 }
