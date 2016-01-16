@@ -3,76 +3,24 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	s "strings"
 )
 
-func Index(vs []string, t string) int {
-	for i,v := range vs {
-		if v == t {
-			return i
-		}
-	}
-	return  -1
-}
-
-func Include(vs []string, t string) bool {
-	return Index(vs, t) >= 0
-}
-
-func Any(vs []string, f func(string) bool) bool {
-	for _, v := range vs {
-		if f(v) {
-			return true
-		}
-	}
-	return false
-}
-
-func All(vs []string, f func(string) bool) bool {
-	for _, v := range vs {
-		if !f(v) {
-			return false
-		}
-	}
-	return true
-}
-
-func Filter(vs []string, f func(string) bool) []string {
-	vsf := make([]string, 0)
-	for _, v := range vs {
-		if f(v) {
-			vsf = append(vsf, v)
-		}
-	}
-	return vsf
-}
-
-func Map(vs []string, f func(string) string) []string {
-	vsm := make([]string, len(vs))
-	for i, v := range vs {
-		vsm[i] = f(v)
-	}
-	return vsm
-}
+var log = fmt.Println
 
 func main() {
-	var strs = []string{"a1","b1","c1","d1"}
 
-	fmt.Println(Index(strs, "c1"))
+	log("Contains:  ", s.Contains("test","t"))
+	log("Count:     ", s.Count("test", "t"))
+	log("HasPrefix: ", s.HasPrefix("test","te"))
+	log("HasSuffix: ", s.HasSuffix("test","st"))
+	log("Index:     ", s.Index("test", "e"))
+	log("Join:      ", s.Join([]string{"a", "b"}, "-"))
+	log("Repeat:    ", s.Repeat("a", 5))
+	log("Replace:   ", s.Replace("foo", "o", "0", -1))
+	log("Replace:   ", s.Replace("foo", "o", "0", 1))
+	log("Split:     ", s.Split("a-b-c-d-e","-"))
+	log("ToLower:   ", s.ToLower("TEST"))
+	log("ToUpper:   ", s.ToUpper("test"))
 
-	fmt.Println(Include(strs, "a1"))
-
-	fmt.Println(Any(strs, func(v string) bool {
-		return strings.HasPrefix(v, "a")
-	}))
-
-	fmt.Println(All(strs, func(v string) bool {
-		return strings.HasPrefix(v, "y")
-	}))
-
-	fmt.Println(Filter(strs, func(v string) bool {
-		return strings.Contains(v, "1")
-	}))
-
-	fmt.Println(Map(strs, strings.ToUpper))
 }
