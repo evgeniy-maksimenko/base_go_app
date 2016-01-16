@@ -1,30 +1,78 @@
 package main
 
-import "fmt"
-import "os"
+
+import (
+	"fmt"
+	"strings"
+)
+
+func Index(vs []string, t string) int {
+	for i,v := range vs {
+		if v == t {
+			return i
+		}
+	}
+	return  -1
+}
+
+func Include(vs []string, t string) bool {
+	return Index(vs, t) >= 0
+}
+
+func Any(vs []string, f func(string) bool) bool {
+	for _, v := range vs {
+		if f(v) {
+			return true
+		}
+	}
+	return false
+}
+
+func All(vs []string, f func(string) bool) bool {
+	for _, v := range vs {
+		if !f(v) {
+			return false
+		}
+	}
+	return true
+}
+
+func Filter(vs []string, f func(string) bool) []string {
+	vsf := make([]string, 0)
+	for _, v := range vs {
+		if f(v) {
+			vsf = append(vsf, v)
+		}
+	}
+	return vsf
+}
+
+func Map(vs []string, f func(string) string) []string {
+	vsm := make([]string, len(vs))
+	for i, v := range vs {
+		vsm[i] = f(v)
+	}
+	return vsm
+}
 
 func main() {
+	var strs = []string{"a1","b1","c1","d1"}
 
-	f := createFile("defer.txt")
-	defer closeFile(f)
-	writeFile(f)
-}
+	fmt.Println(Index(strs, "c1"))
 
-func createFile(p string) *os.File {
-	fmt.Println("creating")
-	f, err := os.Create(p)
-	if err != nil {
-		panic(err)
-	}
-	return f
-}
+	fmt.Println(Include(strs, "a1"))
 
-func writeFile(f *os.File) {
-	fmt.Println("writing")
-	fmt.Println(f, "data")
-}
+	fmt.Println(Any(strs, func(v string) bool {
+		return strings.HasPrefix(v, "a")
+	}))
 
-func closeFile(f *os.File) {
-	fmt.Println("closing")
-	f.Close()
+	fmt.Println(All(strs, func(v string) bool {
+		return strings.HasPrefix(v, "y")
+	}))
+
+	fmt.Println(Filter(strs, func(v string) bool {
+		return strings.Contains(v, "1")
+	}))
+
+	fmt.Println(Map(strs, strings.ToUpper))
 }
