@@ -3,24 +3,52 @@ package main
 
 import (
 	"fmt"
-	s "strings"
+	//"os"
+	"os"
 )
 
-var log = fmt.Println
+var pf = fmt.Printf
+
+type point struct {
+	x, y int
+}
+
+
 
 func main() {
+	p := point{1,2}
+	pf("%v\n", p)
+	pf("%+v\n", p)
+	pf("%#v\n", p)
+	pf("%T\n", p)
+	pf("%t\n", true)
+	pf("%d\n", 123)
 
-	log("Contains:  ", s.Contains("test","t"))
-	log("Count:     ", s.Count("test", "t"))
-	log("HasPrefix: ", s.HasPrefix("test","te"))
-	log("HasSuffix: ", s.HasSuffix("test","st"))
-	log("Index:     ", s.Index("test", "e"))
-	log("Join:      ", s.Join([]string{"a", "b"}, "-"))
-	log("Repeat:    ", s.Repeat("a", 5))
-	log("Replace:   ", s.Replace("foo", "o", "0", -1))
-	log("Replace:   ", s.Replace("foo", "o", "0", 1))
-	log("Split:     ", s.Split("a-b-c-d-e","-"))
-	log("ToLower:   ", s.ToLower("TEST"))
-	log("ToUpper:   ", s.ToUpper("test"))
+	pf("%b\n", 14)
+	pf("%c\n", 33)
+	pf("%x\n", 456)
+
+	pf("%f\n", 78.9)
+
+	pf("%e\n", 123400000.0)
+	pf("%E\n", 123400000.0)
+
+	pf("%s\n", "\"string\"")
+	pf("%q\n", "\"string\"")
+	pf("%x\n", "hex this")
+
+	pf("%p\n", &p)
+	pf("|%6d|%6d|\n", 12, 345)
+	pf("|%6.2f|%6.2f|\n", 1.2, 3.45)
+	pf("|%-6.2f|%-6.2f|\n", 1.2, 3.45)
+	pf("|%6s|%6s|\n", "foo", "b")
+	pf("|%-6s|%-6s|\n", "foo", "b")
+
+	s := fmt.Sprintf("a %s","string")
+	fmt.Println(s)
+
+	fmt.Fprintf(os.Stderr, "an %s\n", "error")
+
+
 
 }
