@@ -5,21 +5,50 @@ import (
 	"runtime"
 	"fmt"
 	"time"
+	"sync"
+	"math/rand"
 )
 
 func main() {
 
-	var ops uint64 = 0
+	var state = make(map[int]int)
+	var mutex =  &sync.Mutex{}
+	var ops int64 = 0
 
-	for i := 0; i< 50; i++ {
+	for r := 0; r < 100; r++ {
 		go func() {
-			atomic.AddUint64(&ops, 1)
+			total := 0
+			for {
+				key := rand.Intn(5)
+				mutex.Lock()
+				total += state[key]
+				mutex.Unlock()
+				atomic.AddInt64(&ops, 1)
+
+				runtime.Gosched()
+			}
+		}()
+	}
+
+	for w := 0; w < 10; w++ {
+		go func() {
+			key := rand.Intn(5)
+			val := rand.Intn(100)
+			mutex.Lock()
+			state[key] = val
+			mutex.Unlock()
+			atomic.AddInt64(&ops, 1)
+
 			runtime.Gosched()
 		}()
 	}
 
 	time.Sleep(time.Second)
 
-	opsFinal := atomic.LoadUint64(&ops)
+	opsFinal := atomic.LoadInt64(&ops)
 	fmt.Println("ops:", opsFinal)
+
+	mutex.Lock()
+	fmt.Println("state:", state)
+	mutex.Unlock()
 }
